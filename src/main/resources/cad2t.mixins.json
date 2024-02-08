@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "com.automatiicalechoes.cad2t.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "refmap": "cad2t.refmap.json",
+  "plugin": "com.automatiicalechoes.cad2t.mixin.MixinPlugin",
+  "mixins": [
+    "ChunkAccessMixin",
+    "CropBlockMixin",
+    "EntityMixin",
+    "LevelChunkSectionMixin",
+    "ServerPlayerMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
