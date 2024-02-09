@@ -1,6 +1,7 @@
 package com.automatiicalechoes.cad2t.mixin;
 
 import com.automatiicalechoes.cad2t.api.ChunkAddition;
+import com.automatiicalechoes.cad2t.api.Targets.PredicateTarget;
 import com.automatiicalechoes.cad2t.utils.mixinInterface.AdditionEffectAble;
 import com.automatiicalechoes.cad2t.utils.ChunkkitPos;
 import com.automatiicalechoes.cad2t.utils.mixinInterface.IChunkAccess;
@@ -42,6 +43,7 @@ public abstract class EntityMixin implements AdditionEffectAble {
         if(level() instanceof ServerLevel serverLevel){
             chunkkitPos.isInsideOrChange(getOnPos(), serverLevel);
             for (ChunkAddition<Entity> activeAddition : activeAdditions) {
+                if(activeAddition.getTarget() instanceof PredicateTarget<Entity> predicateTarget && !predicateTarget.filter((Entity) (Object) this)) continue;
                 activeAddition.Action().run((Entity) (Object) this);
             }
         }

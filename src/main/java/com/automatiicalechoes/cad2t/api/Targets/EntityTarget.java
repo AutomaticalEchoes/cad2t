@@ -20,8 +20,8 @@ public class EntityTarget<T extends Entity> extends PredicateTarget<T> {
     }
 
     @Override
-    public boolean filter(T entity) {
-        return (entityTypes.isEmpty() || entityTypes.contains(entity.getType())) && super.filter(entity);
+    public boolean checkTarget(T entity) {
+        return entityTypes.isEmpty() || entityTypes.contains(entity.getType());
     }
 
 }

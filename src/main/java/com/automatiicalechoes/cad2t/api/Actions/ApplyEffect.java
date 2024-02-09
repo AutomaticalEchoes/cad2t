@@ -3,6 +3,8 @@ package com.automatiicalechoes.cad2t.api.Actions;
 import com.automatiicalechoes.cad2t.api.FileLoader;
 import com.automatiicalechoes.cad2t.api.Targets.AdditionTarget;
 import com.automatiicalechoes.cad2t.api.Targets.EntityTarget;
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.AttributeCheck;
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.WeatherCheck;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,10 +16,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Predicate;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class ApplyEffect implements AdditionAction<LivingEntity>{
     private final AdditionTarget<LivingEntity> target;
@@ -55,12 +57,25 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
 
     public static EntityTarget<LivingEntity> ReadTarget(JsonObject jsonObject){
         Set<EntityType<?>> entityTypes = FileLoader.ReadTargetSet(jsonObject, BuiltInRegistries.ENTITY_TYPE, Registries.ENTITY_TYPE);
-        return new EntityTarget<>(entityTypes, LivingEntity.class);
+        Set<Predicate<LivingEntity>> predicates = ReadPredicates(jsonObject);
+        return predicates.isEmpty()? new EntityTarget<>(entityTypes, LivingEntity.class) : new EntityTarget<>(entityTypes,LivingEntity.class, predicates);
     }
 
     public static Set<Predicate<LivingEntity>> ReadPredicates(JsonObject jsonObject){
-        JsonObject predicates = jsonObject.get("predicates").getAsJsonObject();
-        predicates.has()
+        Set<Predicate<LivingEntity>> predicateSet = new HashSet<>();
+        JsonArray predicates = jsonObject.get("predicates").getAsJsonArray();
+        for (JsonElement predicate : predicates) {
+            JsonObject asJsonObject = predicate.getAsJsonObject();
+            String type = asJsonObject.get("type").getAsString();
+            if(type.equals("weather_check")){
+                WeatherCheck.FromEntity<LivingEntity> weatherCheck = WeatherCheck.fromJson(asJsonObject);
+                predicateSet.add(weatherCheck);
+            }else if(type.equals("attribute_check")){
+                AttributeCheck attributeCheck = AttributeCheck.fromJson(asJsonObject);
+                predicateSet.add(attributeCheck);
+            }
+        }
+        return predicateSet;
     }
 
 

@@ -30,8 +30,7 @@ public abstract class WeatherCheck<T> implements Predicate<T> {
     @Override
     public abstract boolean test(T t);
 
-    public static FromEntity fromJson(JsonObject jsonObject){
-        JsonObject weather = jsonObject.get("weather_check").getAsJsonObject();
+    public static <T extends Entity> FromEntity<T> fromJson(JsonObject weather){
         Boolean isRain = null;
         Boolean isThunder = null;
         if (weather.has("rain")){
@@ -40,17 +39,17 @@ public abstract class WeatherCheck<T> implements Predicate<T> {
         if (weather.has("thunder")){
             isThunder = weather.get("thunder").getAsBoolean();
         }
-        return new FromEntity(isRain, isThunder);
+        return new FromEntity<T>(isRain, isThunder);
     }
 
-    public static class FromEntity extends WeatherCheck<Entity>{
+    public static class FromEntity<T extends Entity> extends WeatherCheck<T>{
 
         public FromEntity(@org.jetbrains.annotations.Nullable Boolean p_82059_, @org.jetbrains.annotations.Nullable Boolean p_82060_) {
             super(p_82059_, p_82060_);
         }
 
         @Override
-        public boolean test(Entity entity) {
+        public boolean test(T entity) {
             if(!(entity.level() instanceof ServerLevel serverlevel)) return false;
             return super.baseTest(serverlevel);
         }

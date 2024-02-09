@@ -40,7 +40,6 @@ public class CropGrowSpeedChange implements AdditionAction<CropBlock>{
 
     }
 
-
     public static record Operation(float add, float mul, float change, float min, float max){
         public Operation separate(Operation operation){
             float add = this.add - operation.add;

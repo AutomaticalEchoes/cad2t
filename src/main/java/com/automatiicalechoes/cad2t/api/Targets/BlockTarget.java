@@ -19,8 +19,8 @@ public class BlockTarget<T extends Block> extends PredicateTarget<T>{
     }
 
     @Override
-    public boolean filter(T t) {
-        return (blockSet.isEmpty() || blockSet.contains(t)) && super.filter(t);
+    public boolean checkTarget(T t) {
+        return blockSet.isEmpty() || blockSet.contains(t);
     }
 
     public Set<Block> getBlockSet() {

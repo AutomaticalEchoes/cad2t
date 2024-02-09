@@ -1,10 +1,9 @@
 package com.automatiicalechoes.cad2t.api.Targets;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class PredicateTarget<T> implements AdditionTarget<T> {
+public abstract class PredicateTarget<T> implements AdditionTarget<T> {
     private final Set<Predicate<T>> predicates;
     private final Class<T> tClass;
 
@@ -18,7 +17,9 @@ public class PredicateTarget<T> implements AdditionTarget<T> {
     }
 
     @Override
-    public boolean filter(T t) {
+    public abstract boolean checkTarget(T t);
+
+    public boolean filter(T t){
         for (Predicate<T> predicate : predicates) {
             if(!predicate.test(t)) return false;
         }
