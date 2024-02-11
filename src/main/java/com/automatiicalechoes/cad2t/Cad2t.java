@@ -30,8 +30,7 @@ public class Cad2t
     public static final Map<Block, CropGrowSpeedChange.Operation> EMPTY_MAP = Map.of();
     public static final Map<ChunkAddition<?>, CropGrowSpeedChange.Operation> EMPTY_LOG_MAP = Map.of();
     public static RegistryAccess REGISTRY_ACCESS;
-    public Cad2t()
-    {
+    public Cad2t() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -39,8 +38,7 @@ public class Cad2t
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+    public void onServerStarting(ServerStartingEvent event) {
         REGISTRY_ACCESS = event.getServer().registryAccess();
         FileLoader.Load();
     }

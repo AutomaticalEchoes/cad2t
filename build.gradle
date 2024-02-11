@@ -14,6 +14,13 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
 apply plugin:  'org.spongepowered.mixin'
 mixin {
     // MixinGradle 设置

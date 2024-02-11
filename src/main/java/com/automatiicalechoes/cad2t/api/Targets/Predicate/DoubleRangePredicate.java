@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public interface DoubleRangePredicate extends Predicate<Double> {
-
     static DoubleRangePredicate fromJson(JsonObject jsonObject){
         JsonArray range = jsonObject.getAsJsonArray("range");
         if(range.size() == 2){
