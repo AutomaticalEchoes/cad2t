@@ -1,10 +1,6 @@
 package com.automatiicalechoes.cad2t.api.Targets.Predicate;
 
-import com.automatiicalechoes.cad2t.api.FileLoader;
 import com.google.gson.JsonObject;
-import net.minecraft.client.OptionInstance;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -12,12 +8,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class AttributeCheck implements Predicate<LivingEntity> {
-    public static final double PROJECT_NULL = -24.24D;
+    public static final Double PROJECT_NULL = -24.24D;
     public static final Map<String,Function<LivingEntity, Double>> FUNCTION_MAP = new HashMap<>();
     static {
         FUNCTION_MAP.put("health", AttributeCheck::getHeath);
@@ -38,6 +33,7 @@ public class AttributeCheck implements Predicate<LivingEntity> {
     @Override
     public boolean test(LivingEntity livingEntity) {
         Double value = attributeGetter.apply(livingEntity);
+        if(value.equals(PROJECT_NULL)) return false;
         return range.test(value);
     }
 

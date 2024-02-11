@@ -4,6 +4,7 @@ import com.automatiicalechoes.cad2t.api.FileLoader;
 import com.automatiicalechoes.cad2t.api.Targets.AdditionTarget;
 import com.automatiicalechoes.cad2t.api.Targets.EntityTarget;
 import com.automatiicalechoes.cad2t.api.Targets.Predicate.AttributeCheck;
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.EquipCheck;
 import com.automatiicalechoes.cad2t.api.Targets.Predicate.WeatherCheck;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -67,12 +68,19 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
         for (JsonElement predicate : predicates) {
             JsonObject asJsonObject = predicate.getAsJsonObject();
             String type = asJsonObject.get("type").getAsString();
-            if(type.equals("weather_check")){
-                WeatherCheck.FromEntity<LivingEntity> weatherCheck = WeatherCheck.fromJson(asJsonObject);
-                predicateSet.add(weatherCheck);
-            }else if(type.equals("attribute_check")){
-                AttributeCheck attributeCheck = AttributeCheck.fromJson(asJsonObject);
-                predicateSet.add(attributeCheck);
+            switch (type) {
+                case "weather_check" -> {
+                    WeatherCheck.FromEntity<LivingEntity> weatherCheck = WeatherCheck.fromJson(asJsonObject);
+                    predicateSet.add(weatherCheck);
+                }
+                case "attribute_check" -> {
+                    AttributeCheck attributeCheck = AttributeCheck.fromJson(asJsonObject);
+                    predicateSet.add(attributeCheck);
+                }
+                case "equip_check" -> {
+                    EquipCheck equipCheck = EquipCheck.fromJson(asJsonObject);
+                    predicateSet.add(equipCheck);
+                }
             }
         }
         return predicateSet;
@@ -84,9 +92,13 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
         Set<Pair<MobEffect ,Integer>> pairs = new HashSet<>();
         JsonArray effects = jsonObject.getAsJsonArray("effects");
         for (JsonElement effect : effects) {
-            String key = effect.getAsJsonObject().get("key").getAsString();
+            JsonObject asJsonObject = effect.getAsJsonObject();
+            String key = asJsonObject.get("key").getAsString();
             ResourceLocation resourceLocation = ResourceLocation.tryParse(key);
-            int level = effect.getAsJsonObject().get("level").getAsInt();
+            int level = 0;
+            if(asJsonObject.has("level")){
+                level = asJsonObject.get("level").getAsInt() - 1;
+            }
             MobEffect mobEffect = BuiltInRegistries.MOB_EFFECT.get(resourceLocation);
             if(mobEffect != null) pairs.add(new Pair(mobEffect,level));
         }
