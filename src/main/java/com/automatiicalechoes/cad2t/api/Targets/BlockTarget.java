@@ -1,5 +1,6 @@
 package com.automatiicalechoes.cad2t.api.Targets;
 
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.LogicPredicateSet;
 import net.minecraft.world.level.block.Block;
 
 import java.util.Set;
@@ -14,6 +15,11 @@ public class BlockTarget<T extends Block> extends PredicateTarget<T>{
     }
 
     public BlockTarget(Set<Block> blockSet, Class<T> tClass, Set<Predicate<T>> predicates) {
+        super(tClass, predicates);
+        this.blockSet = blockSet;
+    }
+
+    public BlockTarget(Set<Block> blockSet, Class<T> tClass, LogicPredicateSet<T> predicates) {
         super(tClass, predicates);
         this.blockSet = blockSet;
     }

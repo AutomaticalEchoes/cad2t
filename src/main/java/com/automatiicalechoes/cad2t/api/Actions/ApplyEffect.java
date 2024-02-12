@@ -5,6 +5,7 @@ import com.automatiicalechoes.cad2t.api.Targets.AdditionTarget;
 import com.automatiicalechoes.cad2t.api.Targets.EntityTarget;
 import com.automatiicalechoes.cad2t.api.Targets.Predicate.AttributeCheck;
 import com.automatiicalechoes.cad2t.api.Targets.Predicate.EquipCheck;
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.LogicPredicateSet;
 import com.automatiicalechoes.cad2t.api.Targets.Predicate.WeatherCheck;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -49,7 +50,6 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
         }
     }
 
-
     public static AdditionAction<LivingEntity> fromJson(JsonObject jsonObject) {
         EntityTarget<LivingEntity> additionTarget = ReadTarget(jsonObject);
         Set<Pair<MobEffect, Integer>> pairs = ReadEffect(jsonObject);
@@ -58,35 +58,44 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
 
     public static EntityTarget<LivingEntity> ReadTarget(JsonObject jsonObject){
         Set<EntityType<?>> entityTypes = FileLoader.ReadTargetSet(jsonObject, BuiltInRegistries.ENTITY_TYPE, Registries.ENTITY_TYPE);
-        Set<Predicate<LivingEntity>> predicates = ReadPredicates(jsonObject);
+        LogicPredicateSet<LivingEntity> predicates = ReadFilter(jsonObject);
         return predicates.isEmpty()? new EntityTarget<>(entityTypes, LivingEntity.class) : new EntityTarget<>(entityTypes,LivingEntity.class, predicates);
     }
 
-    public static Set<Predicate<LivingEntity>> ReadPredicates(JsonObject jsonObject){
+    public static LogicPredicateSet<LivingEntity> ReadFilter(JsonObject jsonObject){
+        JsonObject filter = jsonObject.get("filter").getAsJsonObject();
+        boolean isOr = false;
+        if(filter.has("logic")){
+            String logic = jsonObject.get("logic").getAsString();
+            isOr = logic.equals("or");
+        }
+        return ReadPredicateSet(filter,isOr);
+    }
+
+    public static LogicPredicateSet<LivingEntity> ReadPredicateSet(JsonObject jsonObject, boolean isOr){
         Set<Predicate<LivingEntity>> predicateSet = new HashSet<>();
         JsonArray predicates = jsonObject.get("predicates").getAsJsonArray();
         for (JsonElement predicate : predicates) {
             JsonObject asJsonObject = predicate.getAsJsonObject();
-            String type = asJsonObject.get("type").getAsString();
-            switch (type) {
-                case "weather_check" -> {
-                    WeatherCheck.FromEntity<LivingEntity> weatherCheck = WeatherCheck.fromJson(asJsonObject);
-                    predicateSet.add(weatherCheck);
-                }
-                case "attribute_check" -> {
-                    AttributeCheck attributeCheck = AttributeCheck.fromJson(asJsonObject);
-                    predicateSet.add(attributeCheck);
-                }
-                case "equip_check" -> {
-                    EquipCheck equipCheck = EquipCheck.fromJson(asJsonObject);
-                    predicateSet.add(equipCheck);
-                }
-            }
+            predicateSet.add(ReadPredicate(asJsonObject));
         }
-        return predicateSet;
+        return isOr ? new LogicPredicateSet.Or<>(predicateSet) : new LogicPredicateSet.And<>(predicateSet);
     }
 
-
+    public static Predicate<LivingEntity> ReadPredicate(JsonObject jsonObject){
+        if(jsonObject.has("logic")){
+            String logic = jsonObject.get("logic").getAsString();
+            boolean isOr = logic.equals("or");
+            return ReadPredicateSet(jsonObject, isOr);
+        }
+        String type = jsonObject.get("type").getAsString();
+        return switch (type) {
+            case "weather_check" -> WeatherCheck.fromJson(jsonObject);
+            case "attribute_check" -> AttributeCheck.fromJson(jsonObject);
+            case "equip_check" -> EquipCheck.fromJson(jsonObject);
+            default -> throw new IllegalStateException("invalid predicate type: " + type);
+        };
+    }
 
     public static Set<Pair<MobEffect ,Integer>> ReadEffect(JsonObject jsonObject){
         Set<Pair<MobEffect ,Integer>> pairs = new HashSet<>();

@@ -1,0 +1,41 @@
+{
+  "structures": [
+    "tag/village"
+  ],
+  "actions": [
+    {
+      "type": "cad2t:apply_effect",
+      "action_targets": [
+        "key/minecraft:player"
+      ],
+      "effects": [
+        {
+          "key":"minecraft:speed",
+          "level": "1"
+        }
+      ],
+      "filter": {
+        "predicates": [
+          {
+            "logic": "or",
+            "predicates": [
+              {
+                "type":"equip_check",
+                "mainhand":["key/minecraft:torch"]
+              },
+              {
+                "type": "weather_check",
+                "rain": "true"
+              }
+            ]
+          },
+          {
+            "type":"attribute_check",
+            "attribute":"health",
+            "range": ["20","10","1"]
+          }
+        ]
+      }
+    }
+  ]
+}

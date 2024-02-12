@@ -1,0 +1,19 @@
+{
+  "structures": [
+    "tag/village"
+  ],
+  "biomes": [
+    "key/taiga"
+  ],
+  "actions": [
+    {
+      "type": "cad2t:crop_grow_speed_change",
+      "action_targets": [
+        "key/minecraft:carrots"
+      ],
+      "operation": {
+        "mul": "20"
+      }
+    }
+  ]
+}
