@@ -1,5 +1,7 @@
 package com.automatiicalechoes.cad2t.api.Targets.Predicate;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -22,27 +24,32 @@ public class AttributeCheck implements Predicate<LivingEntity> {
         FUNCTION_MAP.put("movement_speed", livingEntity -> getAttribute(livingEntity,Attributes.MOVEMENT_SPEED));
         FUNCTION_MAP.put("max_health", livingEntity -> getAttribute(livingEntity,Attributes.MAX_HEALTH));
     }
-    private final Function<LivingEntity,Double> attributeGetter;
-    private final DoubleRangePredicate range;
 
-    public AttributeCheck(Function<LivingEntity,Double> attributeGetter, DoubleRangePredicate range){
-        this.attributeGetter = attributeGetter;
-        this.range = range;
+    private final HashMap<Function<LivingEntity,Double>, DoubleRangePredicate> attributes_predicate;
+
+    public AttributeCheck(HashMap<Function<LivingEntity,Double>, DoubleRangePredicate> attributes_predicate){
+        this.attributes_predicate = attributes_predicate;
     }
 
     @Override
     public boolean test(LivingEntity livingEntity) {
-        Double value = attributeGetter.apply(livingEntity);
-        if(value.equals(PROJECT_NULL)) return false;
-        return range.test(value);
+        for (Map.Entry<Function<LivingEntity, Double>, DoubleRangePredicate> entry : attributes_predicate.entrySet()) {
+            Double value = entry.getKey().apply(livingEntity);
+            if(value.equals(PROJECT_NULL) || !entry.getValue().test(value)) return false;
+        }
+      return true;
     }
 
     public static AttributeCheck fromJson(JsonObject attributeCheck){
-        String attribute = attributeCheck.get("attribute").getAsString();
-        Function<LivingEntity, Double> attributeFunction = FUNCTION_MAP.get(attribute);
-        if(attributeFunction == null) throw new NullPointerException("invalid attribute '" + attribute + "'.");
-        DoubleRangePredicate doubleRangePredicate = DoubleRangePredicate.fromJson(attributeCheck);
-        return new AttributeCheck(attributeFunction,doubleRangePredicate);
+        HashMap<Function<LivingEntity,Double>, DoubleRangePredicate> map = new HashMap<>();
+        for (Map.Entry<String, Function<LivingEntity, Double>> entry : FUNCTION_MAP.entrySet()) {
+            if(attributeCheck.has(entry.getKey())){
+                JsonArray array = attributeCheck.get(entry.getKey()).getAsJsonArray();
+                DoubleRangePredicate doubleRangePredicate = DoubleRangePredicate.fromJson(array);
+                map.put(entry.getValue(),doubleRangePredicate);
+            }
+        }
+        return new AttributeCheck(map);
     }
 
     public static double getHeath(LivingEntity livingEntity){

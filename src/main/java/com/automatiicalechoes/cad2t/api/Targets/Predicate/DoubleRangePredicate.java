@@ -9,19 +9,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public interface DoubleRangePredicate extends Predicate<Double> {
-    static DoubleRangePredicate fromJson(JsonObject jsonObject){
-        JsonArray range = jsonObject.getAsJsonArray("range");
-        if(range.size() == 2){
-            double min = range.get(0).getAsDouble();
-            double max = range.get(1).getAsDouble();
-            return new DoubleRange(min, max);
-        }else {
-            Set<Double> doubleSet = new HashSet<>();
-            for (JsonElement jsonElement : range) {
-                doubleSet.add(jsonElement.getAsDouble());
-            }
-            return new DoubleSet(doubleSet);
+    static DoubleRangePredicate fromJson(JsonArray array){
+        if(array.size() == 2){
+            double min = array.get(0).getAsDouble();
+            double max = array.get(1).getAsDouble();
+            if(min < max) return new DoubleRange(min, max);
         }
 
+        Set<Double> doubleSet = new HashSet<>();
+        for (JsonElement jsonElement : array) {
+            doubleSet.add(jsonElement.getAsDouble());
+        }
+        return new DoubleSet(doubleSet);
     }
 }

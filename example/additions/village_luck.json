@@ -1,6 +1,10 @@
 {
   "structures": [
-    "tag/village"
+    "tag/minecraft:village"
+  ],
+  "biomes": [
+    "key/minecraft:taiga",
+    "key/minecraft:desert"
   ],
   "actions": [
     {

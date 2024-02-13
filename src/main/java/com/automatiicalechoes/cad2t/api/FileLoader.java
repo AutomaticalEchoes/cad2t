@@ -2,6 +2,7 @@ package com.automatiicalechoes.cad2t.api;
 
 import com.automatiicalechoes.cad2t.Cad2t;
 import com.automatiicalechoes.cad2t.api.Actions.AdditionAction;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
@@ -25,12 +26,15 @@ public class FileLoader {
     public static Gson gson = new Gson();
     public static int success = 0;
     public static int fail = 0;
+    public static Set<String> LoadMessage = new HashSet<>();
     public static void Load(){
         success = 0;
         fail = 0;
         Optional<File> directory = getDirectoryFile();
-        directory.ifPresentOrElse(FileLoader::ReadDirectory, () -> Cad2t.LOGGER.info("File 'Additions' is not exist"));
+        directory.ifPresentOrElse(FileLoader::ReadDirectory, () -> LoadMessage.add("File 'additions' is not exist"));
         Loaded = true;
+        LoadMessage = ImmutableSet.copyOf(LoadMessage);
+        LoadMessage.forEach(Cad2t.LOGGER::info);
     }
 
     public static Optional<File> getDirectoryFile(){
@@ -51,14 +55,14 @@ public class FileLoader {
                 try {
                     TryBuild(file1);
                 } catch (Exception e) {
-                    Cad2t.LOGGER.info("Load addition file '" + file1.getName() +"' fail, cause:" + e.getMessage());
+                    LoadMessage.add("Load addition file '" + file1.getName() +"' fail, cause:" + e.getMessage());
                     fail ++;
                 }
             }
         }else {
-            Cad2t.LOGGER.info("No addition loaded");
+            LoadMessage.add("No addition loaded");
         }
-        Cad2t.LOGGER.info("End loading addition, Success:" + success + ", Fail:" + fail + ".");
+        LoadMessage.add("End loading addition, Success:" + success + ", Fail:" + fail + ".");
     }
 
     public static AdditionAction<?> ReadAction(JsonObject jsonObject){
@@ -110,10 +114,12 @@ public class FileLoader {
 
         if(!tags.isEmpty()){
             for (TagKey<T> tag : tags) {
-                registry.getTag(tag).ifPresent(holders -> {
+                registry.getTag(tag).ifPresentOrElse(holders -> {
                     for (Holder<T> holder : holders) {
                         holderSet.add(holder);
                     }
+                }, () -> {
+                    throw new NullPointerException("can not find '" + tag + "' int registry '" + registry + "'");
                 });
             }
         }
@@ -121,7 +127,9 @@ public class FileLoader {
         if(!resourceLocations.isEmpty()){
             for (ResourceLocation resourceLocation : resourceLocations) {
                 ResourceKey<T> key = ResourceKey.create(registry.key(), resourceLocation);
-                registry.getHolder(key).ifPresent(holderSet::add);
+                registry.getHolder(key).ifPresentOrElse(holderSet::add, () -> {
+                    throw new NullPointerException("can not find '" + resourceLocation + "' int registry '" + registry + "'");
+                });
             }
         }
 
@@ -136,11 +144,10 @@ public class FileLoader {
         return resourceLocation;
     }
 
-    public static <T> Set<T> ReadTargetSet(JsonObject jsonObject, Registry<T> registry, ResourceKey<Registry<T>> registryResourceKey){
+    public static <T> Set<T> ReadSet(JsonArray jsonArray, Registry<T> registry, ResourceKey<Registry<T>> registryResourceKey){
         Set<T> typeSet = new HashSet<>();
-        JsonArray action_targets = jsonObject.getAsJsonArray("action_targets");
-        for (JsonElement action_target : action_targets) {
-            String asString = action_target.getAsString();
+        for (JsonElement json : jsonArray) {
+            String asString = json.getAsString();
             if(asString.startsWith("key/")){
                 ResourceLocation resourceLocation = FileLoader.ParseStringToResource(asString, 4);
                 Optional<T> optionalT = registry.getOptional(resourceLocation);
@@ -163,10 +170,15 @@ public class FileLoader {
         return typeSet;
     }
 
+    public static <T> Set<T> ReadTargetSet(JsonObject jsonObject, Registry<T> registry, ResourceKey<Registry<T>> registryResourceKey){
+        JsonArray action_targets = jsonObject.getAsJsonArray("action_targets");
+        return ReadSet(action_targets,registry,registryResourceKey);
+    }
+
     public static void TryBuild(File file) throws Exception{
         String s = FileUtils.readFileToString(file);
         JsonObject jsonObject = JsonParser.parseString(s).getAsJsonObject();
-        String name = file.getName().replace(".json", "");
+        String name = file.getName().replace(".json", "").toLowerCase();
         ChunkAddition<?> addition = new ChunkAddition<>(new ResourceLocation(Cad2t.MODID, name), ReadAction(jsonObject));
         Set<Holder<?>> holderSet = ReadSource(jsonObject);
         ChunkAdditionTypes.RegisterAddition(addition,holderSet);

@@ -3,10 +3,7 @@ package com.automatiicalechoes.cad2t.api.Actions;
 import com.automatiicalechoes.cad2t.api.FileLoader;
 import com.automatiicalechoes.cad2t.api.Targets.AdditionTarget;
 import com.automatiicalechoes.cad2t.api.Targets.EntityTarget;
-import com.automatiicalechoes.cad2t.api.Targets.Predicate.AttributeCheck;
-import com.automatiicalechoes.cad2t.api.Targets.Predicate.EquipCheck;
-import com.automatiicalechoes.cad2t.api.Targets.Predicate.LogicPredicateSet;
-import com.automatiicalechoes.cad2t.api.Targets.Predicate.WeatherCheck;
+import com.automatiicalechoes.cad2t.api.Targets.Predicate.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,7 +63,7 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
         JsonObject filter = jsonObject.get("filter").getAsJsonObject();
         boolean isOr = false;
         if(filter.has("logic")){
-            String logic = jsonObject.get("logic").getAsString();
+            String logic = filter.get("logic").getAsString();
             isOr = logic.equals("or");
         }
         return ReadPredicateSet(filter,isOr);
@@ -93,6 +90,7 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
             case "weather_check" -> WeatherCheck.fromJson(jsonObject);
             case "attribute_check" -> AttributeCheck.fromJson(jsonObject);
             case "equip_check" -> EquipCheck.fromJson(jsonObject);
+            case "effect_check" -> EffectCheck.fromJson(jsonObject);
             default -> throw new IllegalStateException("invalid predicate type: " + type);
         };
     }
