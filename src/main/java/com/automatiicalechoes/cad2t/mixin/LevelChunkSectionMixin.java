@@ -39,8 +39,9 @@ public class LevelChunkSectionMixin implements AdditionContainer {
             if(additions.add(chunkAddition))
                 putOperationFrom(chunkAddition);
         }
-
     }
+
+
 
     @Override
     public <T> Set<ChunkAddition<T>> getAddition(T target) {
@@ -48,6 +49,11 @@ public class LevelChunkSectionMixin implements AdditionContainer {
                 .filter(chunkAddition -> chunkAddition.getTarget().isValida(target))
                 .map(chunkAddition -> (ChunkAddition<T>)chunkAddition)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public  Set<ChunkAddition<?>> getActiveAddition() {
+        return additions;
     }
 
     @Override

@@ -16,22 +16,26 @@ public class ChunkAdditionTypes {
     private static final HashMap<ResourceLocation , ChunkAddition<?>> ADDITIONS = new HashMap<>();
     private static final HashMap<Holder<?>, Set<ResourceLocation>> SOURCES = new HashMap<>();
     protected static void RegisterAddition(@Nonnull ChunkAddition<?> chunkAddition, Set<Holder<?>> sources) throws Exception{
-        if (chunkAddition.getRegisterName().equals(NULL) ){
+        if (chunkAddition.registerName().equals(NULL) ){
             throw new Exception("addition cannot not be named 'null'");
-        }else if (ADDITIONS.containsKey(chunkAddition.getRegisterName())){
-            throw new Exception("addition '" + chunkAddition.getRegisterName() + "' already registered" );
+        }else if (ADDITIONS.containsKey(chunkAddition.registerName())){
+            throw new Exception("addition '" + chunkAddition.registerName() + "' already registered" );
         }else {
-            ADDITIONS.put(chunkAddition.getRegisterName(), chunkAddition);
+            ADDITIONS.put(chunkAddition.registerName(), chunkAddition);
             for (Holder<?> source : sources) {
                 if(SOURCES.containsKey(source)){
-                    SOURCES.get(source).add(chunkAddition.getRegisterName());
+                    SOURCES.get(source).add(chunkAddition.registerName());
                 }else {
                     HashSet<ResourceLocation> resourceLocations = new HashSet<>();
-                    resourceLocations.add(chunkAddition.getRegisterName());
+                    resourceLocations.add(chunkAddition.registerName());
                     SOURCES.put(source,resourceLocations);
                 }
             }
         }
+    }
+
+    public static Set<ResourceLocation> resourceLocations(){
+        return ADDITIONS.keySet();
     }
 
     public static Optional<ChunkAddition<?>> getAddition(ResourceLocation resourceLocation){

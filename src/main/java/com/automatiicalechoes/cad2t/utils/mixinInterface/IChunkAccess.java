@@ -9,6 +9,7 @@ import java.util.Set;
 
 public interface IChunkAccess {
     <T> Set<ChunkAddition<T>> getAddition(T target, int y);
+    Set<ChunkAddition<?>> getActiveAddition(int y);
     void putAddition(Set<ChunkAddition<?>> chunkAddition, int y);
     void LoadAdditions();
     Optional<CropGrowSpeedChange.Operation> getCropGrowOperation(Block block, int sectionNum);

@@ -10,6 +10,7 @@ import java.util.Set;
 public interface AdditionContainer {
     void putAddition(Set<ChunkAddition<?>> chunkAddition);
     <T> Set<ChunkAddition<T>> getAddition(T target);
+    Set<ChunkAddition<?>> getActiveAddition();
     void LoadAdditions();
     Optional<CropGrowSpeedChange.Operation> getOperationFor(Block block);
 }

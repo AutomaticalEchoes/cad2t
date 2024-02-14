@@ -5,7 +5,7 @@ import com.automatiicalechoes.cad2t.api.Targets.AdditionTarget;
 import net.minecraft.resources.ResourceLocation;
 
 
-public record ChunkAddition<T>(ResourceLocation name, AdditionAction<T> action) {
+public record ChunkAddition<T>(ResourceLocation registerName, AdditionAction<T> action) {
 
     public AdditionAction<T> Action() {
         return action;
@@ -14,11 +14,7 @@ public record ChunkAddition<T>(ResourceLocation name, AdditionAction<T> action) 
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof ChunkAddition chunkAddition && chunkAddition.getRegisterName().equals(this.getRegisterName());
-    }
-
-    public ResourceLocation getRegisterName() {
-        return name;
+        return obj instanceof ChunkAddition chunkAddition && chunkAddition.registerName().equals(this.registerName());
     }
 
     public AdditionTarget<T> getTarget() {

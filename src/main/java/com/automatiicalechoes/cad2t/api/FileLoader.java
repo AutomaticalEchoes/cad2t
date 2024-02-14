@@ -183,7 +183,7 @@ public class FileLoader {
         Set<Holder<?>> holderSet = ReadSource(jsonObject);
         ChunkAdditionTypes.RegisterAddition(addition,holderSet);
         success ++;
-        Cad2t.LOGGER.info("load Addition '" + file.getName() +"' success");
+        LoadMessage.add("load Addition '" + file.getName() +"' success");
     }
 
 }

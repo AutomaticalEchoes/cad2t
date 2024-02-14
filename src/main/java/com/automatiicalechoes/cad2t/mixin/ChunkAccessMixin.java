@@ -60,6 +60,14 @@ public abstract class ChunkAccessMixin implements IChunkAccess {
     }
 
     @Override
+    public Set<ChunkAddition<?>> getActiveAddition(int sectionNum) {
+        if(!additionLoaded) LoadAdditions();
+        if(sectionNum >= sections.length) return Set.of();
+        LevelChunkSection section = sections[sectionNum];
+        return ((AdditionContainer)section).getActiveAddition();
+    }
+
+    @Override
     public void LoadAdditions(){
         if(this.levelHeightAccessor instanceof ServerLevel serverLevel){
             for (LevelChunkSection section : this.sections) {
