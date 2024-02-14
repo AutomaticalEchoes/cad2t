@@ -1,6 +1,6 @@
 {
   "structures": [
-    "tag/village"
+    "tag/minecraft:village"
   ],
   "actions": [
     {
@@ -31,8 +31,7 @@
           },
           {
             "type":"attribute_check",
-            "attribute":"health",
-            "range": ["20","10","1"]
+            "health": ["20","10","1"]
           }
         ]
       }

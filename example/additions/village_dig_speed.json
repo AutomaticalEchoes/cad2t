@@ -1,0 +1,31 @@
+{
+  "structures": ["tag/minecraft:village"],
+  "actions": [
+    {
+      "action_targets": ["key/minecraft:player"],
+      "effects": [
+        {
+          "key":"minecraft:haste",
+          "level": "1"
+        },
+        {
+          "key":"minecraft:night_vision",
+          "level": "1"
+        }
+      ],
+      "filter": {
+        "logic":"or",
+        "predicates": [
+          {
+            "type":"equip_check",
+            "mainhand":["key/minecraft:torch","tag/forge:tools"]
+          },
+          {
+            "type":"equip_check",
+            "offhand":["key/minecraft:shield"]
+          }
+        ]
+      }
+    }
+  ]
+}

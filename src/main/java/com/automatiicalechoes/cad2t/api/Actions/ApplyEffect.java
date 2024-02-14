@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import org.antlr.v4.runtime.misc.Pair;
@@ -40,9 +41,9 @@ public class ApplyEffect implements AdditionAction<LivingEntity>{
 
     @Override
     public void run(LivingEntity target) {
-        if(target.level().getGameTime() % 80  == 0){
+        if(target.level().getGameTime() % 100  == 0){
             for (Pair<MobEffect, Integer> effect : effects) {
-                target.addEffect(new MobEffectInstance(effect.a,80, effect.b));
+                target.addEffect(new MobEffectInstance(effect.a,effect.a == MobEffects.NIGHT_VISION ? 420 : 100, effect.b));
             }
         }
     }

@@ -2,6 +2,7 @@ package com.automatiicalechoes.cad2t.api;
 
 import com.automatiicalechoes.cad2t.Cad2t;
 import com.automatiicalechoes.cad2t.api.Actions.AdditionAction;
+import com.automatiicalechoes.cad2t.api.Actions.ApplyEffect;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
 import net.minecraft.ResourceLocationException;
@@ -69,6 +70,7 @@ public class FileLoader {
         JsonArray actions = jsonObject.getAsJsonArray("actions");
         for (JsonElement action : actions) {
             JsonObject actionJson = action.getAsJsonObject();
+            if(!actionJson.has("type")) return ApplyEffect.fromJson(actionJson);
             String type = actionJson.get("type").getAsString();
             ResourceLocation resourceLocation = ParseStringToResource(type, 0);
             Function<JsonObject, AdditionAction<?>> codec = AdditionAction.ACTION_CODECS.get(resourceLocation);

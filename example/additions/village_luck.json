@@ -30,8 +30,8 @@
           },
           {
             "type":"attribute_check",
-            "attribute":"health",
-            "range": ["20","10","1"]
+            "max_health": ["20","10"],
+            "health": ["5","10"]
           }
         ]
       }

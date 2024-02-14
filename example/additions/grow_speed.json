@@ -1,9 +1,9 @@
 {
   "structures": [
-    "tag/village"
+    "tag/minecraft:village"
   ],
   "biomes": [
-    "key/taiga"
+    "key/minecraft:taiga"
   ],
   "actions": [
     {

@@ -62,7 +62,7 @@ _阅前提示：本人喜欢用<sub title="如果影响你观看就先给你道�
 
    ``` json
    {
-     "type": "cad2t:apply_effect", //必填，指定加成类型
+     "type": "cad2t:apply_effect", //指定加成类型，不指定时默认为apply_effect，所以这里可以删掉省略。
       "action_targets": [
         "key/minecraft:player" //必填，指定加成作用的目标，参数为数组，可指定多个目标类型。
       ],
