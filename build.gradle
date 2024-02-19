@@ -5,6 +5,7 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         // 添加 MixinGradle 插件
         classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath 'org.yaml:snakeyaml:2.0'
     }
 }
 plugins {
@@ -12,6 +13,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+
 }
 
 version = mod_version
@@ -180,12 +182,13 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    minecraftLibrary 'org.yaml:snakeyaml:2.0'
+
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
-
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
@@ -216,6 +219,9 @@ processResources {
         expand replaceProperties
     }
 }
+
+
+jarJar.fromRuntimeConfiguration()
 
 // Example for how to get properties into the manifest for reading at runtime.
 jar {

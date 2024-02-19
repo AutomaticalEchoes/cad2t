@@ -1,0 +1,23 @@
+structures: []
+biomes:
+  - key/minecraft:taiga
+  - key/minecraft:desert
+actions:
+  - action_targets:
+      - key/minecraft:player
+    effects:
+      - key: minecraft:speed
+        level: 1
+    filter:
+      predicates:
+        -
+          logic: or
+          predicates:
+            - type: equip_check
+              mainhand:
+                - key/minecraft:torch
+            - type: weather_check
+              rain: true
+        - type: attribute_check
+          health: [20,1,10]
+

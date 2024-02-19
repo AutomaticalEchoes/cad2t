@@ -22,11 +22,25 @@
     }
    ]
    ```
+  ``` yaml
+   #向玩家添加一个等级一的幸运Buff
+  actions: 
+    -
+      type: cad2t:apply_effect
+      action_targets: [...]
+      effects: [...]
+      filter:   # 省略掉了logic
+        predicates: 
+         -  # 数组元素较复杂时建议留空行，这里是p1    
+           logic: or
+           predicates: [p3, p4] 
+         - p2 # 筛选器p2,代指就不留空行了，实际最好还是留。
+   ```
 ## 筛选器类型(predicate:type)
 ### 装备筛选器("equip_check")
 - 作用是检视目标身上穿戴的装备是否在指定的物品种类范围内。
-- 可选填六个属性对应原版六个装备格，即：头盔("head")、胸甲("chest")、腿甲("legs")、鞋子("feet")、主手("mainhand")、副手("offhand")。不需要筛选的部位不写即可。
-- 六个装备格元素的参数皆为数组，数组中的元素逻辑关系为逻辑或。
+- 可选填六个关键字对应原版六个装备格，即：头盔("head")、胸甲("chest")、腿甲("legs")、鞋子("feet")、主手("mainhand")、副手("offhand")。不需要筛选的部位不写即可。
+- 六个装备格关键字的参数皆为数组，数组中的元素逻辑关系为逻辑或。但装备格关键字之间的关系为逻辑与。
 - ```json 
   {
     "type":"equip_check",
@@ -34,7 +48,13 @@
     "offhand":["key/minecraft:shield"] // 当副手手持盾牌时。其实盾牌也含有forge:tools标签，所以这里不管是哪只手，手持盾牌就行。
   } // 最终生效条件为：当副手手持盾牌 &（主手手持火把 || 主手手持木剑时）。  
   ```
-- 想要更复杂的判断时可以结合上述提到的筛选器组写多个装备筛选器：
+  ```yaml
+    type: equip_check,
+    mainhand: [key/minecraft:torch, tag/forge:tools] # 展示一下其他写法
+    offhand:
+      - key: minecraft:shield 
+  ```
+- 由于装备格关键字之间的关系为逻辑与，想要更复杂的判断时就要结合上述提到的筛选器组写多个装备筛选器：
   ```json 
   {
     "logic":"or"
@@ -49,6 +69,16 @@
       }
     ] 
   } // 最终生效条件为：当副手手持盾牌 || 主手手持火把 || 主手手持木剑时。  
+  ```
+   ```yaml
+    logic: or
+    predicates: 
+      -
+        type: equip_check
+        mainhand: [key/minecraft:torch,key/minecraft:wooden_sword]
+      -
+        type: equip_check
+        offhand: [key/minecraft:shield] 
   ```
 
 
@@ -65,4 +95,10 @@
      "health": ["5","10"], //5 < 10 这里是数值域，即：生命值大于等于5且小于等于10
      "attack_damage": ["1","9","10"], //攻击力为1 或 9 或 10
   } // 同样的，要满足上述所有条件才会触发加成效果。
+  ```
+  ``` yaml
+     type: attribute_check
+     max_health: [20,10]
+     health: [5,10] 
+     attack_damage: [1,9,10]
   ```
