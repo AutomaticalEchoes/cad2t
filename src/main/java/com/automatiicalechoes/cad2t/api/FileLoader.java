@@ -15,8 +15,11 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -26,10 +29,12 @@ public class FileLoader {
     public static Gson gson = new Gson();
     public static int success = 0;
     public static int fail = 0;
+    public static Yaml yaml;
     public static Set<String> LoadMessage = new HashSet<>();
     public static void Load(){
         success = 0;
         fail = 0;
+        yaml = new Yaml();
         Optional<File> directory = getDirectoryFile();
         directory.ifPresentOrElse(FileLoader::ReadDirectory, () -> LoadMessage.add("File 'additions' is not exist"));
         Loaded = true;
@@ -50,7 +55,10 @@ public class FileLoader {
 
     public static void ReadDirectory(File file){
         if(file.listFiles() != null){
-            List<File> files = Arrays.stream(file.listFiles()).filter(file1 -> file1.getName().toLowerCase().endsWith(".json")).toList();
+            List<File> files = Arrays.stream(file.listFiles()).filter(file1 -> {
+                String s = file1.getName().toLowerCase();
+                return s.endsWith(".json") || s.endsWith(".yml") || s.endsWith(".yaml");
+            }).toList();
             for (File file1 : files) {
                 try {
                     TryBuild(file1);
@@ -100,14 +108,31 @@ public class FileLoader {
         HashSet<ResourceLocation> resourceLocations = new HashSet<>();
 
         for (JsonElement jsonElement : jsonArray) {
-            String asString = jsonElement.getAsString().toLowerCase();
-            if(asString.startsWith("tag/")){
-                ResourceLocation resourceLocation = ParseStringToResource(asString, 4);
-                TagKey<T> structureTagKey = TagKey.create(registryResourceKey, resourceLocation);
-                tags.add(structureTagKey);
-            }else if(asString.startsWith("key/")){
-                ResourceLocation resourceLocation = ParseStringToResource(asString, 4);
-                resourceLocations.add(resourceLocation);
+            try {
+                JsonObject asJsonObject = jsonElement.getAsJsonObject();
+                boolean useTag = asJsonObject.has("tag");
+                boolean useKey = asJsonObject.has("key");
+                if(useTag && useKey){
+                    throw new IllegalArgumentException("cannot contain both 'tag' and 'key' at same target element");
+                }else if(useKey){
+                    ResourceLocation resourceLocation = ParseStringToResource(asJsonObject.get("key").getAsString(), 0);
+                    resourceLocations.add(resourceLocation);
+                }else if (useTag) {
+                    ResourceLocation resourceLocation = ParseStringToResource(asJsonObject.get("tag").getAsString(), 0);
+                    TagKey<T> structureTagKey = TagKey.create(registryResourceKey, resourceLocation);
+                    tags.add(structureTagKey);
+                }
+            }catch(IllegalStateException e) {
+                if(!e.getMessage().startsWith("Not a JSON Object")) throw e;
+                String asString = jsonElement.getAsString().toLowerCase();
+                if(asString.startsWith("tag/")){
+                    ResourceLocation resourceLocation = ParseStringToResource(asString, 4);
+                    TagKey<T> structureTagKey = TagKey.create(registryResourceKey, resourceLocation);
+                    tags.add(structureTagKey);
+                }else if(asString.startsWith("key/")){
+                    ResourceLocation resourceLocation = ParseStringToResource(asString, 4);
+                    resourceLocations.add(resourceLocation);
+                }
             }
         }
 
@@ -177,14 +202,26 @@ public class FileLoader {
     }
 
     public static void TryBuild(File file) throws Exception{
-        String s = FileUtils.readFileToString(file);
-        JsonObject jsonObject = JsonParser.parseString(s).getAsJsonObject();
-        String name = file.getName().replace(".json", "").toLowerCase();
+        String fileName = file.getName();
+        String jsonString;
+        String name;
+        if(fileName.endsWith(".json")){
+            jsonString = FileUtils.readFileToString(file);
+            name = fileName.replace(".json", "").toLowerCase();
+        }else {
+            InputStream inputStream = new FileInputStream(file);
+            Object load = yaml.load(inputStream);
+            jsonString = gson.toJson(load);
+            name = fileName.endsWith(".yml") ? fileName.replace(".yml", "").toLowerCase() : fileName.replace(".yaml", "").toLowerCase();
+            inputStream.close();
+        }
+
+        JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
         ChunkAddition<?> addition = new ChunkAddition<>(new ResourceLocation(Cad2t.MODID, name), ReadAction(jsonObject));
         Set<Holder<?>> holderSet = ReadSource(jsonObject);
         ChunkAdditionTypes.RegisterAddition(addition,holderSet);
         success ++;
-        LoadMessage.add("load Addition '" + file.getName() +"' success");
+        LoadMessage.add("load Addition '" + fileName +"' success");
     }
 
 }

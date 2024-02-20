@@ -13,7 +13,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '0.2.5_forge-1.19-41.1.0'
+version = '0.3.0_forge-1.19-41.1.0'
 group = 'cad2t' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'cad2t'
 
@@ -28,7 +28,10 @@ mixin {
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
+jarJar.enable()
+tasks.named('jarJar') {
+    // ...
+}
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -149,6 +152,8 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.19-41.1.0'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    minecraftLibrary 'org.yaml:snakeyaml:2.0'
+    jarJar(group: 'org.yaml', name: 'snakeyaml', version: '[1.28,2.1)')
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
