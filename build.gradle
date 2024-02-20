@@ -5,7 +5,6 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         // 添加 MixinGradle 插件
         classpath 'org.spongepowered:mixingradle:0.7.+'
-        classpath 'org.yaml:snakeyaml:2.0'
     }
 }
 plugins {
@@ -34,7 +33,10 @@ mixin {
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
+jarJar.enable()
+tasks.named('jarJar') {
+    // ...
+}
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -183,7 +185,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     minecraftLibrary 'org.yaml:snakeyaml:2.0'
-
+    jarJar(group: 'org.yaml', name: 'snakeyaml', version: '[1.28,2.1)')
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
@@ -220,8 +222,6 @@ processResources {
     }
 }
 
-
-jarJar.fromRuntimeConfiguration()
 
 // Example for how to get properties into the manifest for reading at runtime.
 jar {

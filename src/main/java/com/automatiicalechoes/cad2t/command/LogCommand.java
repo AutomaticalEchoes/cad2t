@@ -61,6 +61,12 @@ public class LogCommand {
             sourceStack.sendFailure(Component.translatable("additions no load"));
             return 0;
         }
+
+        if(ChunkAdditionTypes.resourceLocations().isEmpty()){
+            sourceStack.sendFailure(Component.literal("no additions registered"));
+            return 1;
+        }
+
         for (ResourceLocation resourceLocation : ChunkAdditionTypes.resourceLocations()) {
             sourceStack.sendFailure(Component.translatable(resourceLocation.toShortLanguageKey()));
         }
@@ -77,11 +83,13 @@ public class LogCommand {
         Set<ChunkAddition<?>> activeAddition = ((IChunkAccess) chunk).getActiveAddition((int) (position.y - sourceStack.getLevel().getMinBuildHeight()) >> 4);
         if(activeAddition.isEmpty()){
             sourceStack.sendFailure(Component.literal("no active additions in chunk section"));
-        }else {
-            for (ChunkAddition<?> chunkAddition : activeAddition) {
-                sourceStack.sendFailure(Component.literal(chunkAddition.registerName().toShortLanguageKey()));
-            }
+            return 1;
         }
+
+        for (ChunkAddition<?> chunkAddition : activeAddition) {
+            sourceStack.sendFailure(Component.literal(chunkAddition.registerName().toShortLanguageKey()));
+        }
+
         return 1;
     }
 
